@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block body %}
+<h1>Beds &amp; Admissions</h1>
+<div class="card"><h2>Admit patient (auto-allocates the first free bed in the ward)</h2>
+<form method="post"><input type="hidden" name="action" value="admit"><div class="row">
+<div><label>Patient</label><select name="patient_id">{% for p in patients %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></div>
+<div><label>Ward</label><select name="ward"><option>General</option><option>ICU</option><option>Private</option></select></div>
+<div><button>Admit</button></div></div></form></div>
+<div class="card beds">
+{% set ns = namespace(ward='') %}
+{% for b in rows %}{% if b.ward != ns.ward %}{% if ns.ward %}</div>{% endif %}<h2 style="margin-top:14px">{{ b.ward }} ward</h2><div>{% set ns.ward = b.ward %}{% endif %}
+<div class="bed {{ 'used' if b.patient_id else 'free' }}"><b>{{ b.number }}</b><br>
+{% if b.patient_id %}{{ b.pname }}<br><form method="post" style="margin-top:4px"><input type="hidden" name="action" value="discharge"><input type="hidden" name="bed_id" value="{{ b.id }}"><button class="sm danger">Discharge</button></form>
+{% else %}<span class="muted">Free</span>{% endif %}</div>
+{% endfor %}</div></div>{% endblock %}

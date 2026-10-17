@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Sign in - Smart HMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e8c7f'/%3E%3Cpath d='M13 7h6v6h6v6h-6v6h-6v-6H7v-6h6z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body class="auth-body">
+<div class="auth">
+  <section class="banner" aria-hidden="true">
+    <svg viewBox="0 0 640 760" preserveAspectRatio="xMidYMax slice" role="img">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b3b3f"/><stop offset=".62" stop-color="#17796f"/><stop offset="1" stop-color="#7fd0bd"/></linearGradient>
+        <linearGradient id="bld" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dcefeb"/></linearGradient>
+      </defs>
+      <rect width="640" height="760" fill="url(#sky)"/>
+      <g fill="#fff" opacity=".16"><circle cx="520" cy="130" r="64"/><circle cx="520" cy="130" r="104" fill="none" stroke="#fff" stroke-width="2"/></g>
+      <!-- back wings -->
+      <rect x="40" y="420" width="150" height="260" rx="6" fill="#bfe3dc"/><rect x="450" y="400" width="160" height="280" rx="6" fill="#bfe3dc"/>
+      <g fill="#8cc9bf">
+        <rect x="62" y="446" width="22" height="28" rx="3"/><rect x="104" y="446" width="22" height="28" rx="3"/><rect x="146" y="446" width="22" height="28" rx="3"/>
+        <rect x="62" y="498" width="22" height="28" rx="3"/><rect x="104" y="498" width="22" height="28" rx="3"/><rect x="146" y="498" width="22" height="28" rx="3"/>
+        <rect x="62" y="550" width="22" height="28" rx="3"/><rect x="104" y="550" width="22" height="28" rx="3"/><rect x="146" y="550" width="22" height="28" rx="3"/>
+        <rect x="474" y="430" width="22" height="28" rx="3"/><rect x="516" y="430" width="22" height="28" rx="3"/><rect x="558" y="430" width="22" height="28" rx="3"/>
+        <rect x="474" y="482" width="22" height="28" rx="3"/><rect x="516" y="482" width="22" height="28" rx="3"/><rect x="558" y="482" width="22" height="28" rx="3"/>
+        <rect x="474" y="534" width="22" height="28" rx="3"/><rect x="516" y="534" width="22" height="28" rx="3"/><rect x="558" y="534" width="22" height="28" rx="3"/>
+      </g>
+      <!-- main tower -->
+      <rect x="180" y="300" width="280" height="380" rx="8" fill="url(#bld)"/>
+      <rect x="180" y="300" width="280" height="14" rx="4" fill="#0e8c7f"/>
+      <g fill="#7ec3b8">
+        <rect x="206" y="338" width="30" height="38" rx="4"/><rect x="258" y="338" width="30" height="38" rx="4"/><rect x="352" y="338" width="30" height="38" rx="4"/><rect x="404" y="338" width="30" height="38" rx="4"/>
+        <rect x="206" y="402" width="30" height="38" rx="4"/><rect x="258" y="402" width="30" height="38" rx="4"/><rect x="352" y="402" width="30" height="38" rx="4"/><rect x="404" y="402" width="30" height="38" rx="4"/>
+        <rect x="206" y="466" width="30" height="38" rx="4"/><rect x="258" y="466" width="30" height="38" rx="4"/><rect x="352" y="466" width="30" height="38" rx="4"/><rect x="404" y="466" width="30" height="38" rx="4"/>
+      </g>
+      <!-- cross sign -->
+      <circle cx="320" cy="368" r="40" fill="#d9433b"/><path d="M308 346h24v14h14v24h-14v14h-24v-14h-14v-24h14z" fill="#fff"/>
+      <!-- entrance -->
+      <rect x="272" y="570" width="96" height="110" rx="6" fill="#0e8c7f"/><rect x="282" y="582" width="34" height="98" fill="#bfece4"/><rect x="324" y="582" width="34" height="98" fill="#bfece4"/>
+      <rect x="248" y="552" width="144" height="12" rx="4" fill="#0b6f65"/>
+      <!-- ground -->
+      <rect y="680" width="640" height="80" fill="#0b3b3f"/>
+      <path d="M0 724h640" stroke="#7fd0bd" stroke-width="3" stroke-dasharray="18 14" opacity=".7"/>
+      <!-- heartbeat line -->
+      <path class="beat" d="M20 628h120l22-52 34 98 30-70 20 24h110l22-40 28 78 24-38h130" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+    </svg>
+    <div class="copy">
+      <span class="chip">Smart HMS</span>
+      <h2>One desk for every ward.</h2>
+      <p>Appointments, triage, beds, pharmacy and billing in a single place.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <form method="post" class="loginbox" autocomplete="on">
+      <a class="brand dark" href="{{ url_for('login') }}"><span class="mk"><svg viewBox="0 0 32 32"><path d="M13 5h6v8h8v6h-8v8h-6v-8H5v-6h8z" fill="#fff"/></svg></span><span><b>Smart HMS</b></span></a>
+      <h1>Sign in</h1>
+      <p class="sub">Use the account your hospital administrator gave you.</p>
+      {% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+      <label for="u">Username</label>
+      <input id="u" name="username" required autofocus autocomplete="username" autocapitalize="none">
+      <label for="p" style="margin-top:14px">Password</label>
+      <div class="pw"><input id="p" name="password" type="password" required autocomplete="current-password">
+        <button type="button" class="sec sm" id="tg" aria-pressed="false">Show</button></div>
+      <button class="wide">Sign in</button>
+
+      {% if demo %}
+      <details class="demo"><summary>Demo accounts</summary>
+        <table>{% for u,n,r,pw in demo_users %}<tr><td><b>{{ u }}</b></td><td>{{ pw }}</td><td class="muted">{{ r }}</td></tr>{% endfor %}</table>
+        <p class="muted">Shown because this is a demo build. Set <code>HMS_DEMO=0</code> to hide it.</p>
+      </details>
+      {% endif %}
+    </form>
+  </section>
+</div>
+<script>
+const t=document.getElementById('tg'),p=document.getElementById('p');
+t.onclick=()=>{const s=p.type==='password';p.type=s?'text':'password';t.textContent=s?'Hide':'Show';t.setAttribute('aria-pressed',s)};
+</script>
+</body></html>

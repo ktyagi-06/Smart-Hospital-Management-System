@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block body %}
+<h1>{{ p.name }} <span class="muted" style="font-size:14px">#{{ p.id }}</span></h1>
+<div class="card">{{ p.age }} yrs &middot; {{ p.gender }} &middot; Blood {{ p.blood_group or '-' }} &middot; {{ p.phone or '-' }} &middot; {{ p.address or '-' }}
+{% if bed %}<p><span class="pill red">Admitted: {{ bed.ward }} {{ bed.number }} since {{ bed.admitted_at }}</span></p>{% endif %}</div>
+<div class="grid g2">
+<div class="card"><h2>Appointments</h2><table>{% for a in appts %}<tr><td>{{ a.slot }}</td><td>{{ a.dname }}</td><td><span class="pill {{ a.status }}">{{ a.status }}</span></td></tr>{% else %}<tr><td class="muted">None</td></tr>{% endfor %}</table></div>
+<div class="card"><h2>Triage history</h2><table>{% for t in tri %}<tr><td>{{ t.created_at }}</td><td>{{ t.score }}</td><td><span class="pill {{ t.level }}">{{ t.level }}</span></td></tr>{% else %}<tr><td class="muted">None</td></tr>{% endfor %}</table></div>
+<div class="card"><h2>Bills</h2><table>{% for b in bills %}<tr><td>{{ b.description }}</td><td>{{ '%.0f'|format(b.amount) }}</td><td>{{ 'Paid' if b.paid else 'Unpaid' }}</td></tr>{% else %}<tr><td class="muted">None</td></tr>{% endfor %}</table></div>
+</div>{% endblock %}

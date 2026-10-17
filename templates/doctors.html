@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block body %}
+<h1>Doctors</h1>
+<div class="card"><table><tr><th>Name</th><th>Specialization</th><th>Hours</th><th>Fee</th><th>Upcoming appts</th></tr>
+{% for d in rows %}<tr><td>{{ d.name }}</td><td>{{ d.specialization }}</td><td>{{ d.start_hour }}:00 - {{ d.end_hour }}:00</td><td>{{ '%.0f'|format(d.fee) }}</td><td>{{ d.upcoming }}</td></tr>{% endfor %}</table></div>{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block body %}
+<h1>Pharmacy</h1>
+<div class="grid g2">
+<div class="card"><h2>Dispense medicine</h2><form method="post"><input type="hidden" name="action" value="dispense"><div class="row">
+<div><label>Patient</label><select name="patient_id">{% for p in patients %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></div>
+<div><label>Medicine</label><select name="medicine_id">{% for m in rows %}<option value="{{ m.id }}">{{ m.name }} ({{ m.stock }})</option>{% endfor %}</select></div>
+<div><label>Qty</label><input type="number" name="qty" min="1" value="1"></div><div><button>Dispense &amp; bill</button></div></div></form></div>
+<div class="card"><h2>Add new medicine</h2><form method="post"><input type="hidden" name="action" value="add"><div class="row">
+<div><label>Name</label><input name="name" required></div><div><label>Stock</label><input type="number" name="stock" value="0"></div>
+<div><label>Reorder level</label><input type="number" name="reorder_level" value="20"></div><div><label>Price</label><input type="number" step="0.01" name="price" required></div>
+<div><label>Expiry</label><input type="date" name="expiry" required></div><div><button>Add</button></div></div></form></div></div>
+<div class="card"><table><tr><th>Medicine</th><th>Stock</th><th>Price</th><th>Expiry</th><th>Status</th><th>Restock</th></tr>
+{% for m in rows %}<tr><td>{{ m.name }}</td><td>{{ m.stock }}</td><td>{{ m.price }}</td><td>{{ m.expiry }}</td>
+<td>{% if m.expiry < today %}<span class="pill red">Expired</span>{% elif m.expiry <= soon %}<span class="pill amber">Expiring soon</span>{% endif %}
+{% if m.stock <= m.reorder_level %}<span class="pill red">Low stock</span>{% endif %}
+{% if m.expiry >= soon and m.stock > m.reorder_level %}<span class="pill green">OK</span>{% endif %}</td>
+<td><form class="inline" method="post"><input type="hidden" name="action" value="restock"><input type="hidden" name="medicine_id" value="{{ m.id }}"><input type="number" name="qty" value="50" style="width:70px"> <button class="sm sec">+</button></form></td></tr>{% endfor %}</table></div>{% endblock %}

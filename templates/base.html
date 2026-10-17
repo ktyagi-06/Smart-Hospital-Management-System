@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>{% block title %}Smart HMS{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e8c7f'/%3E%3Cpath d='M13 7h6v6h6v6h-6v6h-6v-6H7v-6h6z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+{% set icons = {
+ 'dashboard':'M3 3h8v8H3zM13 3h8v5h-8zM13 11h8v10h-8zM3 14h8v7H3z',
+ 'patients':'M15.5 8a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0zM4.5 20.5c.4-3.6 3.4-5.5 7.5-5.5s7.1 1.9 7.5 5.5',
+ 'doctors':'M6 3v6a4 4 0 0 0 8 0V3M10 13v3a4 4 0 0 0 8 0v-2M18 12a2 2 0 1 0 .01 0',
+ 'appointments':'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+ 'triage':'M3 12h4l2.5-6 4 12 2.5-6H21',
+ 'beds':'M3 19v-8h18v8M3 15h18M6 11V8h5v3',
+ 'pharmacy':'M10.5 3.8a4.3 4.3 0 0 1 6.1 6.1l-6.7 6.7a4.3 4.3 0 0 1-6.1-6.1zM7.2 10.2l6.6 6.6M16 18h5M18.5 15.5v5',
+ 'billing':'M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2zM9 8h6M9 12h6'} %}
+{% set items=[('dashboard','Dashboard'),('patients','Patients'),('doctors','Doctors'),('appointments','Appointments'),('triage','Smart triage'),('beds','Beds'),('pharmacy','Pharmacy'),('billing','Billing')] %}
+{% set cur = request.endpoint if request.endpoint != 'patient_detail' else 'patients' %}
+<body class="m-{{ cur }}">
+<div class="shell">
+<aside class="side">
+  <a class="brand" href="{{ url_for('dashboard') }}">
+    <span class="mk"><svg viewBox="0 0 32 32"><path d="M13 5h6v8h8v6h-8v8h-6v-8H5v-6h8z" fill="#0e8c7f"/></svg></span>
+    <span><b>Smart HMS</b><small>Hospital desk</small></span>
+  </a>
+  <nav class="nav" aria-label="Main">
+  {% for ep,label in items if can(ep) %}
+    <a href="{{ url_for(ep) }}" class="m-{{ ep }} {{ 'on' if cur==ep }}" {% if cur==ep %}aria-current="page"{% endif %}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ icons[ep] }}"/></svg>{{ label }}</a>
+  {% endfor %}
+  </nav>
+  <div class="foot">
+    <div class="who"><span class="av" aria-hidden="true">{{ (user.name or '?')[0] }}</span>
+      <span><b>{{ user.name }}</b><small>{{ user.role }}</small></span></div>
+    <form method="post" action="{{ url_for('logout') }}"><button class="sm out">Sign out</button></form>
+    <p class="note">Triage scores guide the queue. A clinician makes the final call.</p>
+  </div>
+</aside>
+<main class="main">
+  {% for cat,msg in get_flashed_messages(with_categories=true) %}<div class="flash {{cat}}" role="status">{{ msg }}</div>{% endfor %}
+  <div class="top"><div id="ph"></div><span class="date">{{ today_label }}</span></div>
+  {% block body %}{% endblock %}
+</main>
+</div>
+<script>
+/* move the page's <h1> into the top bar so every page shares one header */
+const h=document.querySelector('main > h1');if(h)document.getElementById('ph').appendChild(h);
+</script>
+</body></html>

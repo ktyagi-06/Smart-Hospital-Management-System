@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% block body %}
+<h1>Appointments</h1>
+<div class="card"><h2>Book appointment (only free slots are offered)</h2>
+<form method="post"><div class="row">
+<div><label>Patient</label><select name="patient_id" required>{% for p in patients %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></div>
+<div><label>Doctor</label><select name="doctor_id" id="doc" required>{% for d in doctors %}<option value="{{ d.id }}">{{ d.name }} - {{ d.specialization }}</option>{% endfor %}</select></div>
+<div><label>Date</label><input type="date" id="day" value="{{ today }}" min="{{ today }}"></div>
+<div><label>Free slot</label><select name="slot" id="slot" required></select></div>
+<div><label>Reason</label><input name="reason"></div>
+<div><button>Book</button></div></div></form></div>
+<div class="card"><table><tr><th>When</th><th>Patient</th><th>Doctor</th><th>Reason</th><th>Status</th><th></th></tr>
+{% for a in rows %}<tr><td>{{ a.slot }}</td><td>{{ a.pname }}</td><td>{{ a.dname }}</td><td>{{ a.reason }}</td><td><span class="pill {{ a.status }}">{{ a.status }}</span></td>
+<td>{% if a.status=='Scheduled' %}<form class="inline" method="post" action="{{ url_for('appointment_action', aid=a.id, action='complete') }}"><button class="sm">Done</button></form>
+<form class="inline" method="post" action="{{ url_for('appointment_action', aid=a.id, action='cancel') }}"><button class="sm danger">Cancel</button></form>{% endif %}</td></tr>
+{% else %}<tr><td colspan="6" class="muted">No appointments yet.</td></tr>{% endfor %}</table></div>
+<script>
+async function loadSlots(){
+  const r=await fetch(`/api/slots?doctor_id=${doc.value}&date=${day.value}`);const s=await r.json();
+  slot.innerHTML=s.length?s.map(x=>`<option value="${x}">${x.slice(11)}</option>`).join(''):'<option value="">No free slots</option>';
+}
+doc.onchange=day.onchange=loadSlots;loadSlots();
+</script>{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}{% block body %}
+<h1>Today on the wards</h1>
+
+<section class="kpis" aria-label="Key numbers">
+  <div class="kpi" style="--k:var(--blue)"><div class="n">{{ s.patients }}</div><div class="l">Patients on record</div></div>
+  <div class="kpi" style="--k:var(--amber)"><div class="n">{{ s.today_appts }}</div><div class="l">Appointments today</div></div>
+  <div class="kpi" style="--k:var(--green)"><div class="n">{{ s.beds_used }} <span class="muted" style="font-size:20px">of {{ s.beds_total }}</span></div><div class="l">Beds in use</div></div>
+  <div class="kpi" style="--k:var(--slate)"><div class="n">Rs. {{ '{:,.0f}'.format(s.unpaid) }}</div><div class="l">Unpaid, Rs. {{ '{:,.0f}'.format(s.revenue) }} collected</div></div>
+</section>
+
+<section class="hero">
+  <div class="card">
+    <h2>Bed board</h2>
+    {% set wc = {'ICU':'var(--coral)','General':'var(--green)','Private':'var(--violet)'} %}
+    {% set ns = namespace(ward='', i=0) %}
+    {% for w in wards %}
+    <div class="ward" style="--w:{{ wc.get(w.ward,'var(--teal)') }}">
+      <span class="nm">{{ w.ward }}</span>
+      <div class="dots">
+        {% for b in bed_board if b.ward == w.ward %}{% set ns.i = ns.i + 1 %}
+        <span class="dot {{ 'used' if b.patient_id }}" style="--i:{{ ns.i }}" title="{{ b.number }}{% if b.pname %} - {{ b.pname }}{% else %} - free{% endif %}"></span>
+        {% endfor %}
+      </div>
+      <span class="cnt">{{ w.used }} / {{ w.total }}{% if w.used / w.total >= 0.8 %} &middot; nearly full{% endif %}</span>
+    </div>
+    {% endfor %}
+    <div class="legend"><span><i style="background:var(--teal)"></i>Occupied</span><span><i style="border:2px dashed var(--teal)"></i>Free</span><span>Hover a bed to see who is in it</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Hospital occupancy</h2>
+    <div class="donut-wrap">
+      <div class="donut" style="--p:{{ s.occupancy }}"><b>{{ s.occupancy }}%</b></div>
+      <p class="muted" style="margin:0">{{ s.beds_total - s.beds_used }} beds free right now.
+      {% if s.occupancy >= 80 %}Plan discharges to keep room for emergencies.{% else %}Capacity is comfortable.{% endif %}</p>
+    </div>
+  </div>
+</section>
+
+<section class="grid g3">
+  <div class="card">
+    <h2>Waiting to be seen</h2>
+    {% if queue %}<ul class="q">
+      {% for t in queue %}<li class="lv-{{ t.level }}">
+        <span class="sc">{{ t.score }}</span>
+        <span><b>{{ t.name }}</b><small>{{ t.level }} &middot; {{ t.suggested_dept }}</small></span>
+      </li>{% endfor %}
+    </ul>{% else %}<div class="empty">Nobody is waiting. New assessments appear here, highest risk first.</div>{% endif %}
+    {% if can('triage') %}<p style="margin:14px 0 0"><a href="{{ url_for('triage') }}">Assess a patient</a></p>{% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Appointments this week</h2>
+    <div class="week">
+      {% for d in week %}<div class="col {{ 'now' if loop.first }}">
+        <span class="v">{{ d.n }}</span>
+        <div class="bar7" style="height:{{ (d.n / week_max * 100)|round|int }}%"></div>
+        <span class="d">{{ d.label }}</span></div>{% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Pharmacy attention</h2>
+    {% if low or expiring %}<div class="stock">
+      {% for m in low %}<div class="it"><b>{{ m.name }}</b><span class="pill red">{{ m.stock }} left</span>
+        <div class="meter"><i style="width:{{ [ (m.stock / m.reorder_level * 100)|round|int, 100 ]|min }}%"></i></div></div>{% endfor %}
+      {% for m in expiring %}<div class="it"><b>{{ m.name }}</b><span class="pill amber">Expires {{ m.expiry }}</span></div>{% endfor %}
+    </div>{% else %}<div class="empty">Stock levels and expiry dates are all fine.</div>{% endif %}
+    {% if can('pharmacy') %}<p style="margin:14px 0 0"><a href="{{ url_for('pharmacy') }}">Open pharmacy</a></p>{% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% block body %}
+<h1>Smart Triage</h1>
+<div class="card"><h2>Assess a patient</h2>
+<form method="post"><div class="row">
+<div><label>Patient</label><select name="patient_id" required>{% for p in patients %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></div>
+<div><label>Heart rate (bpm)</label><input name="heart_rate" type="number"></div>
+<div><label>Systolic BP</label><input name="systolic" type="number"></div>
+<div><label>SpO2 (%)</label><input name="spo2" type="number" max="100"></div>
+<div><label>Temp (&deg;C)</label><input name="temp" type="number" step="0.1"></div>
+<div><label>Resp. rate</label><input name="resp_rate" type="number"></div></div>
+<div style="margin-top:12px"><label>Symptoms (free text, e.g. "chest pain and breathless")</label><textarea name="symptoms" rows="2"></textarea></div>
+<p><button>Calculate priority</button></p></form></div>
+{% if result %}<div class="card result lv-{{ result.level }}"><h2>Result for {{ result.patient.name }}</h2>
+<p><span class="bignum">{{ result.score }}</span> &nbsp;<span class="pill {{ result.level }}">{{ result.level }}</span> &middot; Route to <b>{{ result.dept }}</b>
+{% if result.doctor %}&mdash; suggested: {{ result.doctor.name }}{% endif %}</p>
+<ul class="why">{% for r in result.reasons %}<li>{{ r }}</li>{% else %}<li>No risk factors detected</li>{% endfor %}</ul>
+<p class="muted" style="font-size:12px">Decision-support only. A clinician must confirm every triage decision.</p></div>{% endif %}
+<div class="card"><h2>Waiting queue (sorted by risk)</h2>
+<table><tr><th>Patient</th><th>Symptoms</th><th>Score</th><th>Level</th><th>Dept</th><th>Since</th><th></th></tr>
+{% for t in queue %}<tr><td>{{ t.name }}</td><td>{{ t.symptoms }}</td><td>{{ t.score }}</td><td><span class="pill {{ t.level }}">{{ t.level }}</span></td><td>{{ t.suggested_dept }}</td><td>{{ t.created_at }}</td>
+<td><form class="inline" method="post" action="{{ url_for('triage_seen', tid=t.id) }}"><button class="sm">Mark seen</button></form></td></tr>
+{% else %}<tr><td colspan="7" class="muted">Queue is empty.</td></tr>{% endfor %}</table></div>{% endblock %}

@@ -1,4 +1,12 @@
-"""Smart Hospital Management System - Flask + SQLite."""
+"""Smart Hospital Management System - Flask + SQLite.
+
+Map of this file (read top to bottom):
+  1. Setup          - Flask app, secret key, role permissions
+  2. Database       - table definitions (SCHEMA) and sample data (init_db)
+  3. Smart logic    - triage_score(), free_slots(), recommend_doctor()
+  4. Security       - login, logout, and the guard that checks every request
+  5. Pages (routes) - dashboard, patients, appointments, triage, beds, pharmacy, billing
+"""
 import os
 import sqlite3
 from datetime import datetime, timedelta, date

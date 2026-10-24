@@ -1,0 +1,7 @@
+# local data and secrets - never commit these
+hms.db
+.secret_key
+__pycache__/
+*.pyc
+.venv/
+venv/

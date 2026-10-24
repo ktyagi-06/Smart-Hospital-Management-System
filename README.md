@@ -1,52 +1,101 @@
 # Smart Hospital Management System
 
-A web-based hospital management system built with Flask and SQLite, with a few "smart" decision-support features.
+A web application that runs the daily work of a small hospital from one screen: registering patients, booking appointments, deciding who needs care first, assigning beds, dispensing medicine and billing.
 
-## Run it
+**What makes it "smart":** it does not just store records. It makes decisions that save staff time and prevent mistakes.
+
+| Smart feature | What it does |
+|---|---|
+| Triage scoring | Reads vitals and symptoms, gives a risk score, and puts the sickest patient first in the queue |
+| Slot finder | Offers only free appointment times, so a doctor can never be double booked |
+| Auto billing | Consultations, medicines and bed stays are billed automatically |
+| Alerts | Low stock, expiring medicine and nearly full wards show on the dashboard |
+
+## Run it (3 commands)
 
 ```bash
 pip install -r requirements.txt
-python app.py          # then open http://127.0.0.1:5000
-python -m unittest -v test_app   # run the tests
+python app.py
+# open http://127.0.0.1:5000
 ```
 
-The database (`hms.db`) is created and seeded with sample doctors, beds, medicines, patients and demo users on first run.
+Sign in as `admin` / `admin123`. Other demo accounts: `reception` / `reception123`, `doctor` / `doctor123`, `pharmacist` / `pharma123`.
+To check everything works: `python -m unittest -v` (10 tests should pass).
 
-## Sign in and roles
+## How it is built
 
-| Username | Password | Can open |
+```
+ Browser  --->  Flask (app.py)  --->  SQLite database (hms.db)
+ (HTML pages)   routes + smart rules    7 tables, created automatically
+```
+
+| Layer | Technology | Where |
 |---|---|---|
-| `admin` | `admin123` | Everything |
-| `reception` | `reception123` | Patients, doctors, appointments, triage, beds, billing |
-| `doctor` | `doctor123` | Patients, doctors, appointments, triage, beds |
-| `pharmacist` | `pharma123` | Patients and pharmacy |
+| Pages the user sees | HTML templates + CSS | `templates/`, `static/style.css` |
+| Logic and rules | Python with Flask | `app.py` |
+| Data storage | SQLite (a database in a single file) | `hms.db`, created on first run |
+| Testing | Python `unittest` | `test_app.py` |
 
-Passwords are stored hashed. The session key is generated once and saved in `.secret_key` (or set `HMS_SECRET`). Set `HMS_DEMO=0` to hide the demo accounts on the login page. **Change or delete these demo accounts before any real use.** Users are managed directly in the `users` table; there is no user-management screen yet.
+## Database
 
-## Modules
+```mermaid
+erDiagram
+    PATIENTS ||--o{ APPOINTMENTS : books
+    DOCTORS  ||--o{ APPOINTMENTS : attends
+    PATIENTS ||--o{ TRIAGE : assessed
+    PATIENTS ||--o| BEDS : occupies
+    PATIENTS ||--o{ BILLS : owes
+    USERS {
+        text username
+        text role
+        text password_hash
+    }
+```
 
-| Module | What it does |
+`MEDICINES` stands alone (stock, price, expiry). Appointments have a unique (doctor, time) pair, which is what makes double booking impossible.
+
+## The triage rule, in plain words
+
+Each warning sign adds points. The total decides the level.
+
+| Warning sign | Points |
 |---|---|
-| Dashboard | Live stats: patients, today's appointments, bed occupancy, outstanding bills, triage queue, stock and expiry alerts |
-| Patients | Registration, search, and a full patient record (appointments, triage history, bills, bed) |
-| Doctors | Specialization, working hours, fees, upcoming load |
-| Appointments | Books only free 30-minute slots; double booking is blocked by a database constraint |
-| Smart Triage | Scores vitals and symptoms, assigns Critical / Urgent / Semi-urgent / Routine, routes to a department, suggests a doctor, and sorts the waiting queue by risk |
-| Beds | Auto-allocates the first free bed in the chosen ward; discharge bills the stay by ward rate and days |
-| Pharmacy | Dispensing deducts stock and bills the patient; blocks expired medicine; low-stock and expiring-soon alerts |
-| Billing | Consultation, pharmacy and bed charges are created automatically; manual charges; mark as paid |
+| Oxygen (SpO2) below 90% | 30 |
+| Systolic blood pressure below 90 | 25 |
+| Heart rate above 130 or below 40 | 15 |
+| Symptom such as "chest pain" | 30 |
+| Symptom such as "fever" | 8 |
 
-## How the smart parts work
+**40 or more = Critical (sent to Emergency), 20+ = Urgent, 8+ = Semi-urgent, below 8 = Routine.**
+The screen lists every rule that fired, so staff can see why a patient got their score. The full rule list is `triage_score()` and `SYMPTOM_RULES` in `app.py`.
 
-- **Triage score:** an early-warning style point system (SpO2, heart rate, systolic BP, temperature, respiratory rate, age risk, plus symptom keywords). Every point is listed on screen so staff can see why. Rules live in `triage_score()` and `SYMPTOM_RULES` in `app.py`.
-- **Slot finder:** `free_slots()` builds the day from the doctor's hours and removes already booked slots.
-- **Alerts:** low stock (stock <= reorder level), expiry within 30 days, ward occupancy >= 80%.
+## Who can do what
 
-## Important limits
+| Role | Can open |
+|---|---|
+| admin | Everything |
+| reception | Patients, doctors, appointments, triage, beds, billing |
+| doctor | Patients, doctors, appointments, triage, beds |
+| pharmacist | Patients, pharmacy |
 
-- The triage scoring is a simple teaching/demo rule set, **not a validated clinical tool**. Do not use it for real patient care without clinical review.
-- Sign-in and roles are basic. There is no CSRF protection, login rate limiting, audit log, HTTPS or database encryption. A real hospital system needs all of these, plus data protection compliance, before it holds real patient data.
+Passwords are stored hashed (never as plain text). Every page checks the user's role before opening.
 
-## Ideas to extend
+## Project files
 
-A user-management screen, CSRF protection, prescriptions and lab reports, PDF invoices, SMS/email appointment reminders, a REST API, and a trained ML model for readmission or no-show prediction.
+```
+app.py            all the logic (start here)
+templates/        one HTML page per module
+static/style.css  the look and feel
+test_app.py       10 automated tests
+docs/PRESENTATION_GUIDE.md   how to explain and demo this project
+```
+
+## Honest limits
+
+- The triage rules are a simple teaching model based on early-warning scores. They are **not a validated medical tool**.
+- Security is basic. A real hospital would also need CSRF protection, login attempt limits, audit logs, HTTPS and data protection compliance.
+- Demo accounts are shown on the login page. Set `HMS_DEMO=0` to hide them.
+
+## Future work
+
+User management screen, prescriptions and lab reports, PDF invoices, SMS reminders, and a machine learning model trained on real data to replace the hand-written triage rules.
